@@ -1,6 +1,6 @@
 from time import strftime
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, redirect
 from flaskext.mysql import MySQL
 from datetime import datetime
 
@@ -31,15 +31,17 @@ def create():
 
 @app.route('/destroy/<int:id>')
 def destroy(id):
+    conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM 'empleados' WHERE id=%s")
+    cursor.execute("DELETE FROM empleados WHERE id=%s",(id))
+    conn.commit()
+    return redirect('/')
 
 @app.route('/store', methods=['POST'])
 def storage():
     nombre=request.form['txtNombre']
     correo=request.form['txtCorreo']
     foto=request.files['txtFoto']
-
     now=datetime.now()
     tiempo=now.strftime("%Y%D%M%H%S")
 
