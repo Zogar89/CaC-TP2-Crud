@@ -1,5 +1,5 @@
 from time import strftime
-from flask import Flask
+from flask import Flask, render_template_string
 from flask import render_template, request, redirect
 from flaskext.mysql import MySQL
 from datetime import datetime
@@ -35,6 +35,32 @@ def destroy(id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM empleados WHERE id=%s",(id))
     conn.commit()
+    
+@app.route('/edit/<int:id>')
+def edit(id):
+    conn=mysql.connect()
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM empleados WHERE id=%s",(id))
+    empleados=cursor.fetchall()
+    conn.commit()
+    return render_template('empleados/edit.html', empleados=empleados)
+
+@app.route('/update', methods=['POST'])
+def update():
+
+    nombre=request.form['txtNombre']
+    correo=request.form['txtCorreo']
+    foto=request.files['txtFoto']
+    id=request.form['txtID']
+
+    sql="UPDATE `empleados` SET `nombre`=%s, `correo`=%s WHERE id=%s;"
+    datos=(nombre,correo,id)
+
+    conn=mysql.connect()
+    cursor=conn.cursor()
+    cursor.execute(sql,datos)
+    conn.commit()
+
     return redirect('/')
 
 @app.route('/store', methods=['POST'])
