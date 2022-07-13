@@ -1,3 +1,4 @@
+from email.mime import application
 from time import strftime
 from flask import Flask, render_template_string
 from flask import render_template, request, redirect
@@ -5,19 +6,19 @@ from flaskext.mysql import MySQL
 from datetime import datetime
 import os
 
-app=Flask(__name__)
+application=Flask(__name__)
 
 mysql=MySQL()
-app.config['MYSQL_DATABASE_HOST']='localhost'
-app.config['MYSQL_DATABASE_USER']='root'
-app.config['MYSQL_DATABASE_PASSWORD']=''
-app.config['MYSQL_DATABASE_DB']='tp2sistema'
-mysql.init_app(app)
+application.config['MYSQL_DATABASE_HOST']='database-2.cwtsg05na3ro.us-east-1.rds.amazonaws.com'
+application.config['MYSQL_DATABASE_USER']='zogar'
+application.config['MYSQL_DATABASE_PASSWORD']='C4KYc4QjiSefpBE'
+application.config['MYSQL_DATABASE_DB']='empleados'
+mysql.init_application(application)
 
 CARPETA=os.path.join('uploads')
-app.config['CARPETA']=CARPETA
+application.config['CARPETA']=CARPETA
 
-@app.route('/')
+@application.route('/')
 def index():
 
     sql="SELECT * FROM `empleados`;"
@@ -29,18 +30,18 @@ def index():
 
     return render_template('empleados/index.html', empleados=empleados) 
 
-@app.route('/create')
+@application.route('/create')
 def create():
     return render_template('empleados/create.html')
 
-@app.route('/destroy/<int:id>')
+@application.route('/destroy/<int:id>')
 def destroy(id):
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM empleados WHERE id=%s",(id))
     conn.commit()
     
-@app.route('/edit/<int:id>')
+@application.route('/edit/<int:id>')
 def edit(id):
     conn=mysql.connect()
     cursor=conn.cursor()
@@ -49,7 +50,7 @@ def edit(id):
     conn.commit()
     return render_template('empleados/edit.html', empleados=empleados)
 
-@app.route('/update', methods=['POST'])
+@application.route('/update', methods=['POST'])
 def update():
 
     nombre=request.form['txtNombre']
@@ -69,7 +70,7 @@ def update():
 
         cursor.execute("SELECT foto FROM `empleados` WHERE id=%s",(id))
         fila = cursor.fetchall()
-        os.remove(os.path.join(app.config['CARPETA'], fila[0][0]))
+        os.remove(os.path.join(application.config['CARPETA'], fila[0][0]))
 
         cursor.execute("UPDATE `empleados` SET foto=%s WHERE id=%s")
 
@@ -81,7 +82,7 @@ def update():
 
     return redirect('/')
 
-@app.route('/store', methods=['POST'])
+@application.route('/store', methods=['POST'])
 def storage():
     nombre=request.form['txtNombre']
     correo=request.form['txtCorreo']
@@ -104,4 +105,4 @@ def storage():
 
 if __name__ == '__main__':
     #DEBUG is SET to TRUE. CHANGE FOR PROD
-    app.run(debug=True)
+    application.run(debug=True)
