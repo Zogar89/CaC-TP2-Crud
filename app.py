@@ -4,6 +4,9 @@ from flask import render_template, request, redirect
 from flaskext.mysql import MySQL
 from datetime import datetime
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 app=Flask(__name__)
 
@@ -39,6 +42,7 @@ def destroy(id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM empleados WHERE id=%s",(id))
     conn.commit()
+    return redirect('/')
     
 @app.route('/edit/<int:id>')
 def edit(id):
